@@ -15,7 +15,7 @@ database = MongoDB()
 
 
 @Client.on_message(
-    filters.private & PyroFilters.admin() & filters.command("range_files"),
+    filters.private & PyroFilters.admin() & filters.command("range_files", "range"),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def range_files(client: Client, message: ConvoMessage) -> Message | None:
