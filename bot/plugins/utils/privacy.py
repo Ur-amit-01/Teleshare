@@ -7,7 +7,7 @@ from bot.utilities.pyrotools import HelpCmd
 
 
 @Client.on_message(
-    filters.private & filters.command("privacy"),
+    filters.private & PyroFilters.admin() & filters.command("privacy"),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def privacy(_: Client, message: Message) -> Message:
