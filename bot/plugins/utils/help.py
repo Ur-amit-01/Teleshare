@@ -11,7 +11,7 @@ from bot.utilities.pyrotools import HelpCmd
 
 
 @Client.on_message(
-    filters.private & filters.command("help"),
+    filters.private & PyroFilters.admin() & filters.command("help"),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def help_command(client: Client, message: Message) -> Message:  # noqa: ARG001
@@ -33,7 +33,7 @@ async def help_command(client: Client, message: Message) -> Message:  # noqa: AR
         )
 
         format_cmds = "\n".join(available_commands)
-        instructions = f"List of all available commands:```\n{format_cmds}```\n\n{cleandoc(help_command.__doc__) if help_command.__doc__ else ''}"  # noqa: E501
+        instructions = f"List of all available commands:\n{format_cmds}\n\n{cleandoc(help_command.__doc__) if help_command.__doc__ else ''}"  # noqa: E501
 
         return await message.reply(text=instructions, quote=True)
 
