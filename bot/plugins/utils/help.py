@@ -8,7 +8,7 @@ from bot.config import config
 from bot.options import options
 from bot.utilities.helpers import RateLimiter
 from bot.utilities.pyrotools import HelpCmd
-
+from bot.utilities.pyrofilters import PyroFilters
 
 @Client.on_message(
     filters.private & PyroFilters.admin() & filters.command("help"),
