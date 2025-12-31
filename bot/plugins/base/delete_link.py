@@ -14,7 +14,7 @@ database = MongoDB()
 
 
 @Client.on_message(
-    filters.private & PyroFilters.admin() & filters.command("delete_link"),
+    filters.private & PyroFilters.admin() & filters.command("delete_link", "del", "delete"),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def delete_link(client: Client, message: Message) -> Message:
