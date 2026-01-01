@@ -15,7 +15,7 @@ BOOLEN_CONVERT = {"true": True, "false": False}
 
 
 @Client.on_message(
-    filters.private & PyroFilters.admin() & filters.command(["option", "settings"]),
+    filters.private & PyroFilters.admin() & filters.command(["option", "settings", "options", "setting"]),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def option_config_cmd(client: Client, message: Message) -> Message | None:  # noqa: ARG001
@@ -34,7 +34,7 @@ async def option_config_cmd(client: Client, message: Message) -> Message | None:
 
     if not cmd[1:]:
         options_configs = options.settings.model_dump()
-        format_options = "\n".join(f"> `{key}`\n```{value}```\n" for key, value in options_configs.items())
+        format_options = "\n".join(f"> `{key}`\n> {value}\n" for key, value in options_configs.items())
         func_doc = option_config_cmd.__doc__
         return await message.reply(
             text=f"{format_options}\n\n{cleandoc(func_doc) if func_doc else ''}",
