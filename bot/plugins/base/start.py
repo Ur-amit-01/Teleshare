@@ -219,11 +219,11 @@ async def return_start(
     buttons = []
 
     for channel, channel_info in channels_n_invite.items():
-        buttons.append([InlineKeyboardButton(text=channel, url=channel_info["invite_link"])])
+        buttons.append([InlineKeyboardButton(text="📣 ᴄʟɪᴄᴋ ʜᴇʀᴇ ᴛᴏ ᴊᴏɪɴ", url=channel_info["invite_link"])])
 
     if message.command[1:]:
         link = f"https://t.me/{client.me.username}?start={message.command[1]}"  # type: ignore[reportOptionalMemberAccess]
-        buttons.append([InlineKeyboardButton(text="Try Again", url=link)])
+        buttons.append([InlineKeyboardButton(text="🔁 ᴛʀʏ ᴀɢᴀɪɴ", url=link)])
 
     return await PyroHelper.option_message(
         client=client,
