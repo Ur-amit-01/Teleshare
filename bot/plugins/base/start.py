@@ -220,6 +220,8 @@ async def return_start(
 
     for channel, channel_info in channels_n_invite.items():
         buttons.append([InlineKeyboardButton(text="📣 ᴄʟɪᴄᴋ ʜᴇʀᴇ ᴛᴏ ᴊᴏɪɴ", url=channel_info["invite_link"])])
+        #buttons.append([InlineKeyboardButton(text=channel, url=channel_info["invite_link"])])
+        #This line Adds channel name in button.
 
     if message.command[1:]:
         link = f"https://t.me/{client.me.username}?start={message.command[1]}"  # type: ignore[reportOptionalMemberAccess]
