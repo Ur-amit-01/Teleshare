@@ -12,6 +12,27 @@ from bot.utilities.schedule_manager import schedule_manager
 
 database = MongoDB()
 
+#for converting HTML to Telegram formatting.
+@Client.on_message(filters.private & filters.command("format"))
+async def format_command(client: Client, message: Message):
+    # Check if /format is a reply to another message
+    if not message.reply_to_message:
+        await message.reply("❗ Please reply to a message using /format")
+        return
+
+    replied = message.reply_to_message
+
+    # If replied message has text
+    if replied.text:
+        await message.reply(replied.text)
+
+    # If replied message has caption (photo, video, doc, etc.)
+    elif replied.caption:
+        await message.reply(replied.caption)
+
+    else:
+        await message.reply("❗ Replied message has no text to send")
+
 
 class FileSender:
     """Used to manage file sending functions between codexbotz and teleshare."""
