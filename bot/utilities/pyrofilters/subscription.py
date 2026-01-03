@@ -78,6 +78,10 @@ class SubscriptionFilter:
 
                 cls._subs_cache.pop(user_id)
 
+            # Track if user has joined all channels
+            all_channels_joined = True
+            joined_request_channel = await database.user_requested_channels(user_id) if config.PRIVATE_REQUEST else []
+
             for channel_info in config.channels_n_invite.values():
                 channel_id = channel_info["channel_id"]
 
@@ -85,16 +89,17 @@ class SubscriptionFilter:
                     member = await client.get_chat_member(chat_id=channel_id, user_id=user_id)
 
                     if member.status not in status:
-                        return False
+                        all_channels_joined = False
 
                 except UserNotParticipant:
-                    joined_request_channel = await database.user_requested_channels(user_id)
-                    if (not config.PRIVATE_REQUEST) or (
-                        channel_id not in joined_request_channel and config.PRIVATE_REQUEST
-                    ):
-                        return False
+                    if (not config.PRIVATE_REQUEST) or (channel_id not in joined_request_channel):
+                        all_channels_joined = False
 
-            cls._subs_cache[user_id] = datetime.datetime.now(tz=tzlocal.get_localzone())
-            return True
+            # Only cache and return True if user has joined ALL channels
+            if all_channels_joined:
+                cls._subs_cache[user_id] = datetime.datetime.now(tz=tzlocal.get_localzone())
+                return True
+            else:
+                return False
 
         return filters.create(func, "SubscriptionFilter")
