@@ -1,6 +1,5 @@
-import os
 import asyncio
-from pyrogram import Client, filters, enums
+from pyrogram import Client, filters
 from pyrogram.errors import UsernameNotOccupied
 from pyrogram.types import Message
 
@@ -12,24 +11,32 @@ class batch_temp(object):
 @Client.on_message(filters.command(["cancel"]))
 async def send_cancel(client: Client, message: Message):
     batch_temp.IS_BATCH[message.from_user.id] = True
-    await client.send_message(
-        chat_id=message.chat.id,
-        text="**Batch Successfully Cancelled.**"
-    )
+    await message.reply("**Batch Successfully Cancelled.**")
 
 @Client.on_message(filters.text & filters.private & filters.regex("https://t.me/"))
 async def save(client: Client, message: Message):
     if "https://t.me/" in message.text:
+        if "?start=" in message.text:
+            return
+        
         if batch_temp.IS_BATCH.get(message.from_user.id) == False:
-            return await message.reply_text("**One Task Is Already Processing. Wait For It To Complete. If You Want To Cancel This Task Then Use - /cancel**")
+            return await message.reply("**One Task Is Already Processing. Wait For It To Complete. If You Want To Cancel This Task Then Use - /cancel**")
 
         datas = message.text.split("/")
-        temp = datas[-1].replace("?single", "").split("-")
-        fromID = int(temp[0].strip())
+        
+        if len(datas) < 5:
+            return
+        
+        if "?" in datas[3]:
+            return
+        
         try:
-            toID = int(temp[1].strip())
-        except:
-            toID = fromID
+            msg_part = datas[-1].split("?")[0]
+            temp = msg_part.split("-")
+            fromID = int(temp[0].strip())
+            toID = int(temp[1].strip()) if len(temp) > 1 else fromID
+        except (ValueError, IndexError):
+            return
 
         batch_temp.IS_BATCH[message.from_user.id] = False
 
@@ -38,22 +45,17 @@ async def save(client: Client, message: Message):
                 if batch_temp.IS_BATCH.get(message.from_user.id):
                     break
 
-                # Only handle public chats
                 username = datas[3]
-                source_link = f"https://t.me/{username}/{msgid}"
-
+                
                 try:
                     msg = await client.get_messages(username, msgid)
-                except UsernameNotOccupied:
-                    await client.send_message(message.chat.id, "The username is not occupied by anyone", reply_to_message_id=message.id)
-                    return
-
+                except:
+                    continue
+                    
                 try:
-                    # Copy message to user
-                    await client.copy_message(message.chat.id, msg.chat.id, msg.id, reply_to_message_id=message.id)
-                except Exception as e:
-                    if ERROR_MESSAGE:
-                        await client.send_message(message.chat.id, f"Error: {e}", reply_to_message_id=message.id)
+                    await client.copy_message(message.chat.id, msg.chat.id, msg.id)
+                except:
+                    pass
 
                 await asyncio.sleep(0.3)
 
