@@ -12,6 +12,7 @@ from bot.utilities.schedule_manager import schedule_manager
 
 database = MongoDB()
 
+#=====≠=========×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=
 #for converting HTML to Telegram formatting.
 @Client.on_message(filters.private & filters.command("format"))
 async def format_command(client: Client, message: Message):
@@ -32,8 +33,54 @@ async def format_command(client: Client, message: Message):
 
     else:
         await message.reply("❗ Replied message has no text to send")
+#=====≠=========×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=
+@Client.on_message(filters.command("id"))
+async def id_command(client: Client, message: Message):
+    chat = message.chat
+    user = message.from_user
+    
+    # Header based on chat type
+    if chat.type == "private":
+        header = "👤 **Personal Chat Information**"
+    else:
+        header = f"💬 **{chat.type.title()} Information**"
+    
+    # Create info sections
+    sections = []
+    
+    # Chat info section
+    chat_info = ["**Chat Details:**"]
+    chat_info.append(f"  • ID: `{chat.id}`")
+    if chat.title:
+        chat_info.append(f"  • Title: {chat.title}")
+    if chat.username:
+        chat_info.append(f"  • Username: @{chat.username}")
+    chat_info.append(f"  • Type: `{chat.type}`")
+    
+    # User info section
+    user_info = ["**Your Details:**"]
+    user_info.append(f"  • ID: `{user.id}`")
+    user_info.append(f"  • Name: {user.first_name}")
+    if user.last_name:
+        user_info.append(f"  • Full Name: {user.first_name} {user.last_name}")
+    if user.username:
+        user_info.append(f"  • Username: @{user.username}")
+    
+    # Message info section
+    message_info = ["**Message Details:**"]
+    message_info.append(f"  • ID: `{message.id}`")
+    
+    # Combine all sections
+    sections.extend([header, ""])
+    sections.extend(chat_info)
+    sections.append("")
+    sections.extend(user_info)
+    sections.append("")
+    sections.extend(message_info)
+    
+    await message.reply("\n".join(sections), quote=True)
 
-
+#=====≠=========×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=
 class FileSender:
     """Used to manage file sending functions between codexbotz and teleshare."""
 
