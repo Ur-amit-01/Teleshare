@@ -78,28 +78,37 @@ class SubscriptionFilter:
 
                 cls._subs_cache.pop(user_id)
 
-            # Track if user has joined all channels
-            all_channels_joined = True
             joined_request_channel = await database.user_requested_channels(user_id) if config.PRIVATE_REQUEST else []
-
+            
+            # DEBUG: Print channel info
+            print(f"DEBUG: Checking user {user_id}")
+            print(f"DEBUG: Number of channels to check: {len(config.channels_n_invite)}")
+            
+            # Check each channel - return False immediately if any is missing
             for channel_info in config.channels_n_invite.values():
                 channel_id = channel_info["channel_id"]
-
+                
                 try:
                     member = await client.get_chat_member(chat_id=channel_id, user_id=user_id)
-
+                    print(f"DEBUG: Channel {channel_id} - Status: {member.status}")
+                    
                     if member.status not in status:
-                        all_channels_joined = False
-
+                        print(f"DEBUG: User NOT joined channel {channel_id}")
+                        return False
+                    else:
+                        print(f"DEBUG: User IS joined channel {channel_id}")
+                        
                 except UserNotParticipant:
+                    print(f"DEBUG: UserNotParticipant in channel {channel_id}")
                     if (not config.PRIVATE_REQUEST) or (channel_id not in joined_request_channel):
-                        all_channels_joined = False
+                        print(f"DEBUG: Returning False for channel {channel_id}")
+                        return False
+                    else:
+                        print(f"DEBUG: User requested access for private channel {channel_id}")
 
-            # Only cache and return True if user has joined ALL channels
-            if all_channels_joined:
-                cls._subs_cache[user_id] = datetime.datetime.now(tz=tzlocal.get_localzone())
-                return True
-            else:
-                return False
+            # If we reach here, user has joined ALL channels
+            print(f"DEBUG: User {user_id} passed all channel checks")
+            cls._subs_cache[user_id] = datetime.datetime.now(tz=tzlocal.get_localzone())
+            return True
 
         return filters.create(func, "SubscriptionFilter")
