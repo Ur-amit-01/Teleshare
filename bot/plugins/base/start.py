@@ -16,23 +16,41 @@ database = MongoDB()
 #for converting HTML to Telegram formatting.
 @Client.on_message(filters.private & filters.command("format"))
 async def format_command(client: Client, message: Message):
-    # Check if /format is a reply to another message
+
     if not message.reply_to_message:
         await message.reply("❗ Please reply to a message using /format")
         return
 
     replied = message.reply_to_message
 
-    # If replied message has text
-    if replied.text:
-        await message.reply(replied.text)
+    # If media with caption
+    if replied.photo:
+        await client.send_photo(
+            chat_id=message.chat.id,
+            photo=replied.photo.file_id,
+            caption=f"**{replied.caption}**"
+        )
 
-    # If replied message has caption (photo, video, doc, etc.)
-    elif replied.caption:
-        await message.reply(replied.caption)
+    elif replied.document:
+        await client.send_document(
+            chat_id=message.chat.id,
+            document=replied.document.file_id,
+            caption=f"**{replied.caption}**"
+        )
+
+    elif replied.video:
+        await client.send_video(
+            chat_id=message.chat.id,
+            video=replied.video.file_id,
+            caption=f"**{replied.caption}**"
+        )
+
+    # If plain text
+    elif replied.text:
+        await message.reply(f"**{replied.text}**")
 
     else:
-        await message.reply("❗ Replied message has no text to send")
+        await message.reply("❗ Replied message has no text or caption")
 #=====≠=========×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=×=
 @Client.on_message(filters.command("id"))
 async def id_command(client: Client, message: Message):
